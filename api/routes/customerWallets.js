@@ -4,4 +4,5 @@ module.exports = app => {
     app.route('/api/v1/customer-wallets')
         .get(controller.listCustomerWallets.ListCustomerWallets)
         .post(controller.searchCustomerWallets.SearchCustomerWallets)
+        .put(controller.insertCustomerWallets.InsertCustomerWallets)
 }

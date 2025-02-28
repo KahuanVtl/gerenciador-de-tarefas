@@ -11,6 +11,5 @@ module.exports = app => {
             res.status(500).json({ message: 'Erro ao buscar Wallets' })
         }
     };
-
     return controller;
 }
