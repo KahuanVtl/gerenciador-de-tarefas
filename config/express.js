@@ -12,7 +12,13 @@ module.exports = () => {
     // MIDDLEWARE
     app.use(bodyParser.json());
 
-    require('../api/routes/customerWallets')(app);
+    // ENDPOINTS
+
+    consign({cwd: 'api'})
+        .include('data')       
+        .include('controllers')
+        .include('routes')     
+        .into(app);
 
     return app;
 };
