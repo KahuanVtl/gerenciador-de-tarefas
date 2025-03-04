@@ -14,10 +14,8 @@ module.exports = app => {
                 return res.status(500).json({ message: "Fail", motive: `Required properties in body: ${requiredFields.join(", ")}` });
             }
 
-            // select * from customerWallets order by id limit 1
             const lastId = await pool.query('select * from customerWallets order by id DESC limit 1');
             const newId = parseInt(lastId.rows[0].id) + 1;
-            console.log(newId);
 
             const query = `
                 INSERT INTO customerWallets (id, name, birth_date, cellphone, phone, email, occupation, state)
