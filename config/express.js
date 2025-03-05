@@ -6,6 +6,7 @@ const consign  = require('consign');
 // LOGGER
 const morgan = require("morgan");
 const logger = require("./logger");
+const rateLimiter = require('./rateLimiter');
 
 
 module.exports = () => {
@@ -14,10 +15,10 @@ module.exports = () => {
     // SETANDO VARIÁVEIS DA APP
     app.set('port', config.get('server.port'));
 
-    // MIDDLEWARE
+    // MIDDLEWAREs
     app.use(bodyParser.json());
-
     app.use(morgan("combined", { stream: { write: (message) => logger.info(message.trim()) } }));
+    app.use(rateLimiter);
 
     // ENDPOINTS
     consign({cwd: 'api'})
