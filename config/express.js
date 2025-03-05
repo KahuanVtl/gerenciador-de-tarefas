@@ -3,6 +3,11 @@ const bodyParser = require('body-parser');
 const config = require('config');
 const consign  = require('consign');
 
+// LOGGER
+const morgan = require("morgan");
+const logger = require("./logger");
+
+
 module.exports = () => {
     const app = express();
 
@@ -12,10 +17,11 @@ module.exports = () => {
     // MIDDLEWARE
     app.use(bodyParser.json());
 
-    // ENDPOINTS
+    app.use(morgan("combined", { stream: { write: (message) => logger.info(message.trim()) } }));
 
+    // ENDPOINTS
     consign({cwd: 'api'})
-        .include('data')       
+        // .include('data') COMENTADO POIS NÃO USA MAIS! -> Direto no banco
         .include('controllers')
         .include('routes')     
         .into(app);

@@ -1,0 +1,1 @@
+Tecnologias usadas -> Nodejs, express, pg (postgresql), consign, cors, dotenv, nodemon
