@@ -177,7 +177,7 @@ PUT /v1/customer-wallets
 
 ## Rate Limiting
 
-Todas as requisições à API são protegidas por **rate limiting** utilizando o middleware `express-rate-limit`. O limite de requisições é configurado como **100 requisições a cada 55 minutos**. Caso o limite seja atingido, a resposta será:
+Todas as requisições à API são protegidas por **rate limiting** utilizando o middleware `express-rate-limit`. O limite de requisições é configurado como **100 requisições a cada 5 minutos**. Caso o limite seja atingido, a resposta será:
 
 ```json
 {
