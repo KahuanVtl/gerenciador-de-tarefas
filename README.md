@@ -177,7 +177,7 @@ PUT /v1/customer-wallets
 
 ## Rate Limiting
 
-Todas as requisições à API são protegidas por **rate limiting** utilizando o middleware `express-rate-limit`. O limite de requisições é configurado como **100 requisições a cada 55 minutos**. Caso o limite seja atingido, a resposta será:
+Todas as requisições à API são protegidas por **rate limiting** utilizando o middleware `express-rate-limit`. O limite de requisições é configurado como **100 requisições a cada 5 minutos**. Caso o limite seja atingido, a resposta será:
 
 ```json
 {
@@ -210,6 +210,6 @@ Contribuições são bem-vindas!
 
 ## Observações
 
-- A implementação de paginação foi feita nos endpoints de listagem de carteiras, com controle de número de resultados por página.
+- A implementação de paginação foi feita nos endpoints de listagem, com controle de número de resultados por página.
 - A proteção contra excessos de requisições (**rate limiting**) foi configurada globalmente, sendo aplicada a todas as rotas.
 - O controle de acesso é feito com base no cabeçalho `Authorization`, permitindo diferentes comportamentos dependendo do tipo de usuário (**usuário comum** ou **administrador**). No entanto, o projeto não possui um sistema de autenticação completo, e a autorização é feita de forma simplificada, com base no `typeUser`.
