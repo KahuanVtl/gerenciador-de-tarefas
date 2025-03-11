@@ -14,15 +14,15 @@ module.exports = app => {
 
             logger.info(`Searching for wallets for the client with ID: ${id}`);
 
-            const customerWalletsDB = await pool.query(`SELECT * FROM transactions WHERE parent_id = $1`, [id]);
+            const transactionsDB = await pool.query(`SELECT * FROM transactions WHERE parent_id = $1`, [id]);
 
-            if (customerWalletsDB.rows.length === 0) {
+            if (transactionsDB.rows.length === 0) {
                 logger.info(`No wallets found for the client with ID: ${id}`);
                 return res.status(200).json({ message: "Fail", motive: `No wallets found for the client with ID: ${id}` });
             }
 
-            logger.info(`Wallet found for client ${id}: ${JSON.stringify(customerWalletsDB.rows)}`);
-            return res.status(200).json({ message: "Success", data: customerWalletsDB.rows });
+            logger.info(`Wallet found for client ${id}: ${JSON.stringify(transactionsDB.rows)}`);
+            return res.status(200).json({ message: "Success", data: transactionsDB.rows });
 
         } catch (error) {
             logger.error(`Error searching for wallets: ${error.message}`);

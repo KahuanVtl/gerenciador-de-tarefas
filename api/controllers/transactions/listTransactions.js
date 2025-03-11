@@ -6,9 +6,9 @@ module.exports = app => {
     controller.listTransactions = async (req, res) => {
         try {
             const Authorization = req.headers.authorization;
-            let { page = 1, limit = 10 } = req.query; // Pega os parâmetros de página e limite da query string
+            let { page = 1, limit = 10 } = req.query; // Get page and limit parameters from the query string
 
-            // Verifica se os parâmetros são válidos (inteiros)
+            // Check if parameters are valid (integers)
             page = parseInt(page);
             limit = parseInt(limit);
             
@@ -16,46 +16,45 @@ module.exports = app => {
                 return res.status(400).json({ message: "Fail", motive: "Page or Limit should be a number" });
             }
 
-            // Calcula o OFFSET para a consulta SQL
+            // Calculate OFFSET for SQL query
             const offset = (page - 1) * limit;
 
-            logger.info(`Buscando carteiras`);
+            logger.info(`Fetching Transactions`);
 
-            // Se o usuário NÃO passar Authorization, retorna os dados básicos com paginação
-            
+            // If the user does NOT provide Authorization, return basic data with pagination
             const userKey = await pool.query(
                 'SELECT id, typeUser FROM securityKeys WHERE id = $1', 
                 [Authorization]
             );
 
-            // Busca o usuário na base de segurança
+            // Check if the user exists in the security database
             if (!Authorization || !userKey.rows[0].typeuser || userKey.rows.length === 0) {
                 return res.status(401).json({ message: "Authorization key is required." });
             }
 
-            // Se não encontrou usuário ou se typeUser for indefinido, trata como user comum
+            // If no user is found or typeUser is undefined, treat as a regular user
             if (userKey.rows[0].typeuser === 'user') {
-                const customerWalletsDB = await pool.query(
-                    'SELECT id, name, occupation FROM customerWallets LIMIT $1 OFFSET $2', 
+                const transactionsDB = await pool.query(
+                    'SELECT id, name, occupation FROM transactions LIMIT $1 OFFSET $2', 
                     [limit, offset]
                 );
-                logger.info(`Carteiras encontradas: ${JSON.stringify(customerWalletsDB.rows)}`);
-                return res.status(200).json({ message: "Success", data: customerWalletsDB.rows });
+                logger.info(`Transactions found: ${JSON.stringify(transactionsDB.rows)}`);
+                return res.status(200).json({ message: "Success", data: transactionsDB.rows });
             }
 
-            // Se for admin, retorna todos os dados com paginação
+            // If the user is an admin, return all data with pagination
             if (userKey.rows[0].typeuser === 'admin') {
-                const customerWalletsDB = await pool.query(
-                    'SELECT * FROM customerWallets LIMIT $1 OFFSET $2', 
+                const transactionsDB = await pool.query(
+                    'SELECT * FROM transactions LIMIT $1 OFFSET $2', 
                     [limit, offset]
                 );
-                logger.info(`Carteiras encontradas: ${JSON.stringify(customerWalletsDB.rows)}`);
-                return res.status(200).json({ message: "Success", data: customerWalletsDB.rows });
+                logger.info(`Transactions found: ${JSON.stringify(transactionsDB.rows)}`);
+                return res.status(200).json({ message: "Success", data: transactionsDB.rows });
             }
 
         } catch (error) {
-            logger.error(`Erro ao buscar Wallets: ${error.message}`);
-            return res.status(500).json({ message: 'Erro ao buscar Wallets' });
+            logger.error(`Error fetching Transactions: ${error.message}`);
+            return res.status(500).json({ message: 'Error fetching Transactions' });
         }
     };
 
