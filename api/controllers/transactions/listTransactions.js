@@ -1,56 +1,41 @@
 module.exports = app => {
-    const pool = require('../../../config/database');
     const logger = require('../../../config/logger');
+    const queries = require('./utils/queries');
+    const keys = require('../../utils/queries');
     const controller = {};
 
     controller.listTransactions = async (req, res) => {
         try {
             const Authorization = req.headers.authorization;
-            let { page = 1, limit = 10 } = req.query; // Get page and limit parameters from the query string
+            let { page = 1, limit = 10 } = req.query;
 
-            // Check if parameters are valid (integers)
             page = parseInt(page);
             limit = parseInt(limit);
-            
+
             if (isNaN(page) || isNaN(limit)) {
                 return res.status(400).json({ message: "Fail", motive: "Page or Limit should be a number" });
             }
 
-            // Calculate OFFSET for SQL query
             const offset = (page - 1) * limit;
 
             logger.info(`Fetching Transactions`);
 
-            // If the user does NOT provide Authorization, return basic data with pagination
-            const userKey = await pool.query(
-                'SELECT id, typeUser FROM securityKeys WHERE id = $1', 
-                [Authorization]
-            );
+            // Buscar o usuário pelo token de autorização
+            const userKey = await keys.getUserKey(Authorization);
 
-            // Check if the user exists in the security database
-            if (!Authorization || !userKey.rows[0].typeuser || userKey.rows.length === 0) {
+            if (!Authorization || !userKey?.typeuser) {
                 return res.status(401).json({ message: "Authorization key is required." });
             }
 
-            // If no user is found or typeUser is undefined, treat as a regular user
-            if (userKey.rows[0].typeuser === 'user') {
-                const transactionsDB = await pool.query(
-                    'SELECT id, name, occupation FROM transactions LIMIT $1 OFFSET $2', 
-                    [limit, offset]
-                );
-                logger.info(`Transactions found: ${JSON.stringify(transactionsDB.rows)}`);
-                return res.status(200).json({ message: "Success", data: transactionsDB.rows });
+            let transactionsDB;
+            if (userKey.typeuser === 'user') {
+                transactionsDB = await queries.getUserTransactions(limit, offset);
+            } else if (userKey.typeuser === 'admin') {
+                transactionsDB = await queries.getAdminTransactions(limit, offset);
             }
 
-            // If the user is an admin, return all data with pagination
-            if (userKey.rows[0].typeuser === 'admin') {
-                const transactionsDB = await pool.query(
-                    'SELECT * FROM transactions LIMIT $1 OFFSET $2', 
-                    [limit, offset]
-                );
-                logger.info(`Transactions found: ${JSON.stringify(transactionsDB.rows)}`);
-                return res.status(200).json({ message: "Success", data: transactionsDB.rows });
-            }
+            logger.info(`Transactions found: ${JSON.stringify(transactionsDB)}`);
+            return res.status(200).json({ message: "Success", data: transactionsDB });
 
         } catch (error) {
             logger.error(`Error fetching Transactions: ${error.message}`);

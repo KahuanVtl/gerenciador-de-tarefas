@@ -1,6 +1,6 @@
 module.exports = app => {
-    const pool = require('../../../config/database');
     const logger = require('../../../config/logger');
+    const queries = require('./utils/queries');
     const controller = {};
 
     controller.searchTransactions = async (req, res) => {
@@ -12,21 +12,21 @@ module.exports = app => {
                 return res.status(400).json({ message: "Fail", motive: "Body does not exist or is incomplete" });
             }
 
-            logger.info(`Searching for wallets for the client with ID: ${id}`);
+            logger.info(`Searching for transactions for the client with ID: ${id}`);
 
-            const transactionsDB = await pool.query(`SELECT * FROM transactions WHERE parent_id = $1`, [id]);
+            const transactionsDB = await queries.searchTransactionsByParentId(id);
 
-            if (transactionsDB.rows.length === 0) {
-                logger.info(`No wallets found for the client with ID: ${id}`);
-                return res.status(200).json({ message: "Fail", motive: `No wallets found for the client with ID: ${id}` });
+            if (transactionsDB.length === 0) { // Correção aqui
+                logger.info(`No transactions found for the client with ID: ${id}`);
+                return res.status(200).json({ message: "Fail", motive: `No transactions found for the client with ID: ${id}` });
             }
 
-            logger.info(`Wallet found for client ${id}: ${JSON.stringify(transactionsDB.rows)}`);
-            return res.status(200).json({ message: "Success", data: transactionsDB.rows });
+            logger.info(`Transactions found for client ${id}: ${JSON.stringify(transactionsDB)}`);
+            return res.status(200).json({ message: "Success", data: transactionsDB });
 
         } catch (error) {
-            logger.error(`Error searching for wallets: ${error.message}`);
-            return res.status(500).json({ message: 'Error searching for wallets', motive: error.message });
+            logger.error(`Error searching for transactions: ${error.message}`);
+            return res.status(500).json({ message: 'Error searching for transactions', motive: error.message });
         }
     };
 
