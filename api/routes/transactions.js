@@ -4,5 +4,5 @@ module.exports = app => {
     app.route('/api/v1/transactions')
         .get(controller.listTransactions.listTransactions)
         .post(controller.searchTransactions.searchTransactions)
-        // .put(controller.insertTransaction.insertTransaction)
+        .put(controller.insertTransaction.InsertTransaction)
 }
