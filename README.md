@@ -1,4 +1,4 @@
-# API de Carteiras
+# API de Banco fictício
 
 Este projeto é uma API desenvolvida com **Node.js** e **Express** para gerenciar carteiras de clientes. A API permite realizar operações como listar carteiras e buscar carteiras por ID, com funcionalidades de paginação e limitação de requisições.
 
