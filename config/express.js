@@ -1,19 +1,17 @@
+// express.js
 const express = require('express');
 const bodyParser = require('body-parser');
-const config = require('config');
 const consign  = require('consign');
-
-// LOGGER
 const morgan = require("morgan");
 const logger = require("./logger");
 const rateLimiter = require('./rateLimiter');
-
 
 module.exports = () => {
     const app = express();
 
     // SETANDO VARIÁVEIS DA APP
-    app.set('port', config.get('server.port'));
+    const port = process.env.PORT || 3000; // <= TROCA AQUI
+    app.set('port', port);
 
     // MIDDLEWAREs
     app.use(bodyParser.json());
@@ -22,7 +20,6 @@ module.exports = () => {
 
     // ENDPOINTS
     consign({cwd: 'api'})
-        // .include('data') COMENTADO POIS NÃO USA MAIS! -> Direto no banco
         .include('controllers')
         .include('routes')     
         .into(app);
