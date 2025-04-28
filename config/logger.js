@@ -2,10 +2,32 @@ const winston = require("winston");
 const path = require("path");
 const fs = require("fs");
 
-// Criar diretório de logs caso não exista
-const logsDir = path.join(__dirname, "../api/data/logs");
-if (!fs.existsSync(logsDir)) {
-    fs.mkdirSync(logsDir, { recursive: true });
+const isProduction = process.env.NODE_ENV === "production";
+
+const transports = [
+    // Sempre loga no console
+    new winston.transports.Console({
+        format: isProduction ? winston.format.json() : winston.format.simple(),
+    })
+];
+
+// Se NÃO for produção, também loga em arquivos
+if (!isProduction) {
+    const logsDir = path.join(__dirname, "../api/data/logs");
+
+    if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir, { recursive: true });
+    }
+
+    transports.push(
+        new winston.transports.File({
+            filename: path.join(logsDir, "error.log"),
+            level: "error",
+        }),
+        new winston.transports.File({
+            filename: path.join(logsDir, "combined.log"),
+        })
+    );
 }
 
 const logger = winston.createLogger({
@@ -14,15 +36,7 @@ const logger = winston.createLogger({
         winston.format.timestamp(),
         winston.format.json()
     ),
-    transports: [
-        new winston.transports.File({ filename: path.join(logsDir, "error.log"), level: "error" }),
-        new winston.transports.File({ filename: path.join(logsDir, "combined.log") }),
-    ],
+    transports
 });
-
-// Se estiver rodando em ambiente de desenvolvimento, mostra logs no console
-if (process.env.NODE_ENV !== "production") {
-    logger.add(new winston.transports.Console({ format: winston.format.simple() }));
-}
 
 module.exports = logger;
